@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,13 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 
 class MainActivity : ComponentActivity() {
@@ -63,7 +58,10 @@ private fun GridCounterScreen() {
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     GridCounterContent(
-        itemCount = itemCount, isLandscape = isLandscape, onAddItem = { itemCount++ })
+        itemCount = itemCount,
+        isLandscape = isLandscape,
+        onAddItem = { itemCount++ }
+    )
 }
 
 @Composable
@@ -88,7 +86,7 @@ private fun GridCounterContent(
     Column(
         modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.End
     ) {
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_top)))
+        Spacer(modifier = Modifier.height(AppDimens.SpacingTop))
 
         NumberGrid(
             itemCount = itemCount,
@@ -100,7 +98,7 @@ private fun GridCounterContent(
             onClick = onAddItem,
             modifier = Modifier
                 .weight(buttonWeight)
-                .padding(dimensionResource(R.dimen.spacing_button))
+                .padding(AppDimens.SpacingButton)
         )
     }
 }
@@ -136,12 +134,12 @@ private fun NumberGridItem(
         text = number.toString(),
         modifier = modifier
             .aspectRatio(1f)
-            .padding(dimensionResource(R.dimen.spacing_item))
+            .padding(AppDimens.SpacingItem)
             .background(backgroundColor)
             .wrapContentHeight(),
         color = colorResource(R.color.text_white),
         textAlign = TextAlign.Center,
-        fontSize = dimensionResource(R.dimen.font_size_grid_item).value.sp
+        fontSize = AppDimens.FontSizeGridItem
     )
 }
 
@@ -153,7 +151,7 @@ private fun AddItemButton(
     Button(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_radius_button))
+        shape = RoundedCornerShape(AppDimens.CornerRadiusButton)
     ) {
         Icon(
             imageVector = Icons.Default.Add,
