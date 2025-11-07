@@ -5,20 +5,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,10 +56,12 @@ private fun GridCounterScreen() {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+
     GridCounterContent(
         itemCount = itemCount,
         isLandscape = isLandscape,
-        onAddItem = { itemCount++ }
+        onAddItem = { itemCount++ },
+        onRemoveLastItem = { if (itemCount > 0) itemCount-- }
     )
 }
 
@@ -69,6 +70,7 @@ private fun GridCounterContent(
     itemCount: Int,
     isLandscape: Boolean,
     onAddItem: () -> Unit,
+    onRemoveLastItem: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val columnCount = if (isLandscape) {
@@ -91,6 +93,7 @@ private fun GridCounterContent(
         NumberGrid(
             itemCount = itemCount,
             columnCount = columnCount,
+            onRemoveLastItem = onRemoveLastItem,
             modifier = Modifier.weight(GridConstants.GRID_WEIGHT)
         )
 
@@ -107,14 +110,20 @@ private fun GridCounterContent(
 private fun NumberGrid(
     itemCount: Int,
     columnCount: Int,
+    onRemoveLastItem: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(columnCount), modifier = modifier
+        columns = GridCells.Fixed(columnCount),
+        modifier = modifier
     ) {
         items(
             count = itemCount, key = { it }) { index ->
-            NumberGridItem(number = index)
+            NumberGridItem(
+                number = index,
+                isLastItem = index == itemCount - 1,
+                onRemove = onRemoveLastItem
+            )
         }
     }
 }
@@ -122,6 +131,8 @@ private fun NumberGrid(
 @Composable
 private fun NumberGridItem(
     number: Int,
+    isLastItem: Boolean,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = if (number % 2 == 0) {
@@ -130,17 +141,25 @@ private fun NumberGridItem(
         colorResource(R.color.grid_item_odd)
     }
 
-    Text(
-        text = number.toString(),
+    Button(
+        onClick = if (isLastItem) {{ onRemove() }} else {{}},
+        enabled = isLastItem,
         modifier = modifier
             .aspectRatio(1f)
-            .padding(AppDimens.SpacingItem)
-            .background(backgroundColor)
-            .wrapContentHeight(),
-        color = colorResource(R.color.text_white),
-        textAlign = TextAlign.Center,
-        fontSize = AppDimens.FontSizeGridItem
-    )
+            .padding(AppDimens.SpacingItem),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            disabledContainerColor = backgroundColor,
+        ),
+        shape = RoundedCornerShape(AppDimens.CornerRadiusItem),
+    ) {
+        Text(
+            text = number.toString(),
+            color = colorResource(R.color.text_white),
+            textAlign = TextAlign.Center,
+            fontSize = AppDimens.FontSizeGridItem
+        )
+    }
 }
 
 @Composable
@@ -151,7 +170,7 @@ private fun AddItemButton(
     Button(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(AppDimens.CornerRadiusButton)
+        shape = RoundedCornerShape(AppDimens.CornerRadiusButton),
     ) {
         Icon(
             imageVector = Icons.Default.Add,
